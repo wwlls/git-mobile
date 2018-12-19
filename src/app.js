@@ -6,11 +6,15 @@ import { Provider } from 'react-redux';
 import promise from 'redux-promise'; //可以实行异步
 import { createStore, applyMiddleware } from 'redux';
 import thunkMiddleware from 'redux-thunk'
+import FastClick from 'fastclick';
 import qs from 'qs';
 import RouterMap from './router';
 import reducers from './reducers/index';
 import Config from '../config';
 import './static/css/base.css'
+
+//移动设备上的浏览器默认会在用户点击屏幕大约延迟300毫秒后才会触发点击事件，这是为了检查用户是否在做双击。为了能够立即响应用户的点击事件，才有了FastClick
+FastClick.attach(document.body);
 
 // mock是本地模拟环境，Dev是本地开发环境
 if (!Config.mock) {
