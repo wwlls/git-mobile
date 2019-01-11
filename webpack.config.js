@@ -86,7 +86,7 @@ module.exports = {
     },
     plugins: [
         new OpenBrowserPlugin({
-          url: `http://localhost:${PORT}/testMember`
+          url: `http://localhost:${PORT}/home`
         }),
         new htmlWebpackPlugin({
             title: config.title, //开发环境下项目title
