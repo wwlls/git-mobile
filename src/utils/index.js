@@ -19,62 +19,71 @@ const Utils = {
         params['action'] = urlOrigin;
         return axios.get(url, { params });
     },
-    postRequest(action, data = {} , callFuc) {
+    postRequest(action, data = {}) {
         data['action'] = action;
+        data = this.setPublic(data);
+        data['sign'] = Utils.createSign(data);
         //mock数据
         if (Config.mock) {
             //match(/-(\w*)/)[1];  
             const urlCode = url;
-          // 返回一个数组[status, data, headers]
+            // 返回一个数组[status, data, headers]
             this.mockAdapter.onPost(url).reply(200, mockData[urlCode]);
         } else {
-            data = this.setPublic(data);
             let accessToken = Utils.getStorage("ZZBSESSIONID");
             if(action != 'token/get' && (accessToken == '' || accessToken == null || accessToken == undefined)) {
-                Utils.removeStorage('customerMobile'); //清除手机号
+                Utils.removeSession(); //清除本地数据
                 let tokenData = {};
                 tokenData['app_key'] = Config.app_key;
                 tokenData['device_id'] = Config.device_id;
-                let callFuc1 = function(accessRes) {
-                    let accessToken = JSON.parse(accessRes.body).access_token;
-                    Utils.setStorage("ZZBSESSIONID" , accessToken);
-                    Utils.postRequest(action, data = {}, () => { //获取到token后再次请求接口
-                        return axios.post(Config.api + action, data).then(function(res) {
-                            callFuc(res);
+                Utils.postRequest(Api.token_get, tokenData).then((accessRes) => {
+                        let accessToken = JSON.parse(accessRes.body).access_token;
+                        Utils.setStorage("ZZBSESSIONID" , accessToken);
+                        Utils.postRequest(action, data = {}).then(() => {//获取到token后再次请求接口
+                            axios.post(Config.api + action, data).then((res)=>{
+                                resolve(res);
+                            })
                         })
-                    })
-                }
-                this.postRequest('token/get', tokenData, callFuc1);
+                    });
                 return;
             }
-            data['sign'] = Utils.createSign(data);
+            let loading = document.getElementById('ajaxLoading');
+            loading.style.display = 'block';
         }
-        return axios.post(Config.api + action, data).then(function(res) {
-            if (res.rtn_code == 1009) {// 未登录
-                Utils.removeStorage('customerMobile'); //清除手机号
-                window.location.href = Config.login_page;
-                return;
-            };
-            if(res.rtn_code == 1002) {// token未获取到
-                Utils.removeStorage('customerMobile'); //清除手机号
-                let tokenData = {};
-                tokenData['app_key'] = Config.app_key;
-                tokenData['device_id'] = Config.device_id;
-                let callFuc1 = function(accessRes) {
-                    let accessToken = JSON.parse(accessRes.body).access_token;
-                    console.log(accessToken)
-                    Utils.setStorage("ZZBSESSIONID" , accessToken);
-                    Utils.postRequest(action, data = {}, () => { //获取到token后再次请求接口
-                        return axios.post(Config.api + action, data).then(function(res) {
-                            callFuc(res);
+        return new Promise((resolve,reject) => {
+            axios.post(Config.api + action, data).then((res)=>{
+                let loading = document.getElementById('ajaxLoading');
+                loading.style.display = 'none';
+                if (res.rtn_code == 1009) {// 未登录
+                    Utils.removeSession(); //清除本地数据
+                    //window.location.href = Config.login_page;
+                    return;
+                };
+                if(res.rtn_code == 1002) {// token未获取到
+                    Utils.removeSession(); //清除本地数据
+                    let tokenData = {};
+                    tokenData['app_key'] = Config.app_key;
+                    tokenData['device_id'] = Config.device_id;
+                    Utils.postRequest(Api.token_get, tokenData).then((accessRes) => {
+                        let accessToken = JSON.parse(accessRes.body).access_token;
+                        Utils.setStorage("ZZBSESSIONID" , accessToken);
+                        Utils.postRequest(action, data = {}).then(() => {//获取到token后再次请求接口
+                            axios.post(Config.api + action, data).then((res)=>{
+                                resolve(res);
+                            })
                         })
-                    })
+                    });
+                    return;
                 }
-                Utils.postRequest('token/get', tokenData, callFuc1);
-                return;
-            }
-            callFuc(res);
-        });
+                resolve(res);
+                //Promise报错
+                // if(res.rtn_code == 0) {
+                //     resolve(res);
+                // } else{
+                //     reject(res);
+                // }
+            })
+        })
     },
 
     //公用参数
