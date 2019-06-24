@@ -1,9 +1,9 @@
 const path = require('path');
-var webpack = require('webpack');
-var pxtorem = require('postcss-pxtorem'); //px自动生成rem
+const webpack = require('webpack');
+const pxtorem = require('postcss-pxtorem'); //px自动生成rem
 const htmlWebpackPlugin = require('html-webpack-plugin');
 const OpenBrowserPlugin = require('open-browser-webpack-plugin');
-var config = require('./config');
+const config = require('./config');
 const PORT = 8099;
 const svgDirs = [
     require.resolve('antd-mobile').replace(/warn\.js$/, ''),  // 1. 属于 antd-mobile 内置 svg 文件
@@ -11,7 +11,7 @@ const svgDirs = [
 ]
 
 module.exports = {
-    entry: ["babel-polyfill", "./src/app.js"], //相对路径 babel-polyfill转义es6兼容ie浏览器
+    entry: ["@babel/polyfill", "./src/app.js"], //相对路径 babel-polyfill转义es6兼容ie浏览器
     output: {
         path: path.resolve(__dirname, 'build'), //打包文件的输出路径
         filename: 'bundle.js',
@@ -28,8 +28,16 @@ module.exports = {
                     loader: 'babel-loader',
                     options: {
                         cacheDirectory: true,
-                        presets: ['env', 'react', 'es2015', 'stage-0'],
-                        plugins: [['import', { libraryName: 'antd-mobile', style: 'css' }], 'syntax-dynamic-import']
+                        presets: [
+                          '@babel/preset-react',
+                          '@babel/preset-env'
+                        ],
+                        plugins: [
+                          [
+                            'import', { libraryName: 'antd-mobile', style: 'css' }
+                          ], 
+                          '@babel/plugin-syntax-dynamic-import'
+                        ]
                     }
                 }]
             },

@@ -35,4 +35,4 @@ const mockData = Object.assign(
   bankTransfer
 );
 
-module.exports = mockData;
+export default mockData;

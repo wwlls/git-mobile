@@ -23,6 +23,8 @@ const Utils = {
         data['action'] = action;
         data = this.setPublic(data);
         data['sign'] = Utils.createSign(data);
+        let loading = document.getElementById('ajaxLoading');
+        loading.style.display = 'block';
         //mock数据
         if (Config.mock) {
             //match(/-(\w*)/)[1];  
@@ -37,18 +39,12 @@ const Utils = {
                 tokenData['app_key'] = Config.app_key;
                 tokenData['device_id'] = Config.device_id;
                 Utils.postRequest(Api.token_get, tokenData).then((accessRes) => {
-                        let accessToken = JSON.parse(accessRes.body).access_token;
-                        Utils.setStorage("ZZBSESSIONID" , accessToken);
-                        Utils.postRequest(action, data = {}).then(() => {//获取到token后再次请求接口
-                            axios.post(Config.api + action, data).then((res)=>{
-                                resolve(res);
-                            })
-                        })
-                    });
-                return;
+                    let accessToken = JSON.parse(accessRes.body).access_token;
+                    Utils.setStorage("ZZBSESSIONID" , accessToken);
+                    let loading = document.getElementById('ajaxLoading');
+                    loading.style.display = 'none';
+                });
             }
-            let loading = document.getElementById('ajaxLoading');
-            loading.style.display = 'block';
         }
         return new Promise((resolve,reject) => {
             axios.post(Config.api + action, data).then((res)=>{

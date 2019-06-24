@@ -1,23 +1,56 @@
 import React from 'react';
-import history from 'utils/history'; 
 import { TabBar } from 'antd-mobile';
 import PropTypes from 'prop-types';
 import Utils from 'utils/index';
-import './tabBar.scss';
+import Home from 'containers/home/home';
+import Lend from 'containers/lend/lend';
+import Merchant from 'containers/merchant/merchant';
+import Mine from 'containers/mine/mine';
+import './index.scss';
 
-class Tabbar extends React.Component {
+class Index extends React.Component {
     //子组件路由无法跳转使用 Context
     static contextTypes = {
         router: PropTypes.object
     }
     constructor(props, context) {
+         console.log(context)
         super(props, context);
         this.state = { 
+          selectedTab: 'blueTab',
         };
     }
 
     componentDidMount() {
     }   
+
+    renderContent(pageText) {
+      let {
+        state,
+        dispatch
+      } = this.props
+
+      if (pageText == 'Life') {
+        return (
+          <Home />
+        );
+      } else if (pageText == 'Koubei') {
+        return (
+          <Lend  />
+        )
+      } else if (pageText == 'Friend') {
+        return (
+          <div>
+          <Merchant  />
+          </div>
+        )
+      } else if (pageText == 'my') {
+        return (
+          <Mine  />
+        )
+      }
+
+    }
 
     render() {
         return (
@@ -42,12 +75,16 @@ class Tabbar extends React.Component {
                         background: 'url(https://zos.alipayobjects.com/rmsportal/iSrlOTqrKddqbOmlvUfq.svg) center center /  21px 21px no-repeat' }}
                     />
                     }
-                    selected={this.props.pathname === '/home'}
+                    selected={this.state.selectedTab === 'blueTab'}
                     badge={1}
                     onPress={() => {
-                      history.push('/home');
+                      this.setState({
+                        selectedTab: 'blueTab',
+                      });
                     }}
+                    data-seed="logId"
                   > 
+                    {this.renderContent('Life')}
                   </TabBar.Item>
                   <TabBar.Item
                     icon={
@@ -67,11 +104,15 @@ class Tabbar extends React.Component {
                     title="Koubei"
                     key="Koubei"
                     badge={'new'}
-                    selected={this.props.pathname === '/lend'}
+                    selected={this.props.selectedTab === 'redTab'}
                     onPress={() => {
-                      history.push('/lend');
+                      this.setState({
+                        selectedTab: 'redTab',
+                      });
                     }}
+                    data-seed="logId1"
                   >
+                  {this.renderContent('Koubei')}
                   </TabBar.Item>
                   <TabBar.Item
                     icon={
@@ -91,22 +132,34 @@ class Tabbar extends React.Component {
                     title="Friend"
                     key="Friend"
                     dot
-                    selected={this.props.pathname === '/mine'}
+                    selected={this.props.selectedTab === 'greenTab'}
                     onPress={() => {
-                      history.push('/mine');
+                      this.setState({
+                        selectedTab: 'greenTab',
+                      });
                     }}
+                    // onPress={() => {
+                    //   this.context.router.history.push('/mine');
+                    // }}
                   >
+                  {this.renderContent('Friend')}
                   </TabBar.Item>
                   <TabBar.Item
                     icon={{ uri: 'https://zos.alipayobjects.com/rmsportal/asJMfBrNqpMMlVpeInPQ.svg' }}
                     selectedIcon={{ uri: 'https://zos.alipayobjects.com/rmsportal/gjpzzcrPMkhfEqgbYvmN.svg' }}
                     title="My"
                     key="my"
-                    selected={this.props.pathname === '/merchant'}
+                    selected={this.props.selectedTab === 'yellowTab'}
                     onPress={() => {
-                      history.push('/merchant');
+                      this.setState({
+                        selectedTab: 'yellowTab',
+                      });
                     }}
+                    // onPress={() => {
+                    //   this.context.router.history.push('/merchant');
+                    // }}
                   >
+                  {this.renderContent('my')}
                   </TabBar.Item>
                 </TabBar>
             </div>
@@ -114,4 +167,4 @@ class Tabbar extends React.Component {
     }
 }
 
-export default Tabbar;
+export default Index;

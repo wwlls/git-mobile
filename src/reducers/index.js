@@ -1,9 +1,9 @@
 import { combineReducers } from 'redux';
-import imgReducer from './reducer-img';
+// import imgReducer from './reducer-img';
 import counter from './counter';
 
 const rootReducer = combineReducers({
-  	imgReducer,
+  	// imgReducer,
   	counter,
 });
 

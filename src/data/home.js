@@ -88,4 +88,4 @@ const homeData = {
 //     }
 // };
 
-module.exports = homeData;
+export default homeData;
